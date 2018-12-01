@@ -32,7 +32,7 @@ def do_login():
 
             if pw == 'password' and user == 'admin':
                 session['logged_in'] = True
-                return render_template('auth/socket.html')
+                return render_template('hub/hub.html')
             else:
                 print ("wrong password!")
         else:
@@ -45,7 +45,7 @@ def hub():
     if not session.get('logged_in'):
         return render_template('auth/login.html')
     else:
-        return render_template('auth/socket.html')
+        return render_template('hub/hub.html')
 
 @socketio.on('json')
 def handle_json(json):
