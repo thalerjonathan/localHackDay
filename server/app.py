@@ -28,7 +28,7 @@ def home():
         return redirect('/login')
     else:
         return redirect('/hub')
- 
+
 @app.route('/login', methods=['GET', 'POST'])
 def do_login():
     global nextPlayerId
@@ -41,26 +41,25 @@ def do_login():
 
             if db_validate_user(user,pw):
                 session['logged_in'] = True
-<<<<<<< HEAD
               
                 pid = nextPlayerId
-                x = 8
+                x = 8 
                 y = 8
-                nextPlayerId = nextPlayerId + 1
+                seeker = len(players) == 0
 
-                p = Player(pid, user, x, y)
+                p = Player(pid, user, x, y, seeker)
                 players[pid] = p
 
                 msg = json.dumps(p.__dict__)
 
+                session['mypid'] = pid
+                session['myname'] = user
+                nextPlayerId = nextPlayerId + 1
+
                 socketio.emit('player_conn', msg, broadcast = True)
 
-                session['mypid'] = pid
                 return redirect('/hub')
 
-=======
-                return redirect('/hub')
->>>>>>> 1172ab235c30e91539a1e8263612b4bbc60d2dc9
             else:
                 return "wrong password!"
         else:
@@ -74,19 +73,35 @@ def hub():
         return redirect('/login')
     else:
         pid = session.get('mypid')
-        return render_template('hub/hub.html', myPidArg = str(pid))
+        name = session.get('myname')
+        return render_template('hub/hub.html', myPidArg = str(pid), myNameArg = name)
 
 @socketio.on('disconnect')
 def handle_disconnect():
-    # TODO: get correct playerId from session and send in broadcast
-    socketio.emit('player_disc', '{ playerId: '', playerData = '' }', broadcast = True)
+    pid = session.get('mypid')
+    if pid in players.keys()
+      del players[pid]
+      
+    socketio.emit('player_disc', json.dumps(pid), broadcast = True)
+
+@socketio.on('position_update')
+def handle_position_update(data):
+    posInfo = json.loads(data)
+    pid = session.get('mypid')
+    
+    players[pid].x = posInfo['x']
+    players[pid].y = posInfo['y']
+
+    #print("player " + str(pid) + " changed position to " + str(posInfo))
+
+    msg = json.dumps({'pid': pid, 'x': posInfo['x'], 'y': posInfo['y'] })
+    socketio.emit('position_player_changed', msg, broadcast = True)
 
 @socketio.on('gamestate_request')
 def handle_gamestate():
     global players
 
-    print ("gamestate_request")
-    print (players)
+    #print (players)
 
     msg = []
     for pid, p in players.items():
@@ -112,5 +127,3 @@ def do_register():
         session['logged_in'] = True
         session['name'] = name
         return redirect('/')
-
-    

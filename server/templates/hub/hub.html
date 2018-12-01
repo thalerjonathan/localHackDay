@@ -164,19 +164,23 @@ THE SOFTWARE.
         self = this;
 
         var myPid = '{{ myPidArg }}';
+        var myName = '{{ myNameArg }}';
         var players = [];
         
-        console.log("I am " + myPid);
+        console.log("I am " + myName + " with id " + myPid);
 
         // player on this machine
         var player = {
-          id: 0,
+          id: myPid,
+          name: myName,
           image: playerImages.files["main.png"],
           xPos: 8,
           yPos: 8
         };
+        players[player.pid] = player;
 
         var socket = io.connect('http://' + document.domain + ':' + location.port);
+
         socket.on('connect', function() {
           socket.emit('gamestate_request');
         });
@@ -185,29 +189,34 @@ THE SOFTWARE.
           var gs = JSON.parse(gsStr)
           console.log('Received gamestate: ' + gs)
           
-          gs.map(function(p) {
-            console.log(' player: ' + p)
+          gs.map(function(pStr) {
+            var p = JSON.parse(pStr);
+            //console.log(' player: ' + p)
 
-            var pdef = { 
-              id: p.pid,
-              image: playerImages.files["enemy1.png"],
-              xPos: p.x,
-              yPos: p.y
+            var pdef = null;
+            
+            if (p.pid == myPid) {
+              player.xPos = p.x;
+              player.yPos = p.y;
+              pdef = player;
+            } else {
+              pdef = { 
+                id: p.pid,
+                image: playerImages.files["enemy1.png"],
+                xPos: p.x,
+                yPos: p.y
+              }
             }
 
             players[p.pid] = pdef;
           });
         });
 
-        socket.on('disconnect', function () {
-          // TODO: remove player by pid
-          socket.emit('user disconnected');
-        });
-
-        socket.on('player_conn', function(p) {
+        socket.on('player_conn', function(pStr) {
+            p = JSON.parse(pStr);
             console.log('player connected: ' + p);
             var pdef = { 
-              id: p.id,
+              id: p.pid,
               image: playerImages.files["enemy1.png"],
               xPos: p.x,
               yPos: p.y
@@ -216,9 +225,18 @@ THE SOFTWARE.
             players[p.id] = pdef;
         });
 
-        socket.on('player_disc', function(data) {
-            console.log('player disconnected: ' + data);
-            var pid = data.playerId;
+        socket.on('position_player_changed', function(dataStr) {
+            data = JSON.parse(dataStr);
+            if (data.pid != myPid && 
+                data.pid in players) {
+              //console.log('player ' + data.pid + ' changed position');
+              players[data.pid].xPos = data.x;
+              players[data.pid].yPos = data.y;
+            }
+        });
+
+        socket.on('player_disc', function(pid) {
+            console.log('player disconnected: ' + pid);
             delete players[pid];
         });
 
@@ -247,6 +265,8 @@ THE SOFTWARE.
             case 38:
               if (Number(mapLayers[1].getTile([player.xPos], [player.yPos - 1])) === 0) {
                 player.yPos --;
+                socket.emit('position_update', JSON.stringify({x: player.xPos, y: player.yPos}));
+
                 mapLayers[1].applyFocus(player.xPos, player.yPos);
                 if (startX > 0 && player.yPos <= mapLayers[0].getLayout().length - 1 - rangeY / 2) {
                   mapLayers.map(function(layer) {
@@ -259,6 +279,8 @@ THE SOFTWARE.
             case 39:
               if (Number(mapLayers[1].getTile([player.xPos + 1], [player.yPos])) === 0) {
                 player.xPos ++;
+                socket.emit('position_update', JSON.stringify({x: player.xPos, y: player.yPos}));
+
                 mapLayers[1].applyFocus(player.xPos, player.yPos);
                 if (startY + rangeY < mapLayers[0].getLayout().length && player.xPos >= 0 + 1 + rangeX / 2) {
                   mapLayers.map(function(layer) {
@@ -271,6 +293,8 @@ THE SOFTWARE.
             case 40:
               if (Number(mapLayers[1].getTile([player.xPos], [player.yPos + 1])) === 0) {
                 player.yPos ++;
+                socket.emit('position_update', JSON.stringify({x: player.xPos, y: player.yPos}));
+
                 mapLayers[1].applyFocus(player.xPos, player.yPos);
                 if (startX + rangeX < mapLayers[0].getLayout().length && player.yPos >= 0 + 1 + rangeY / 2 ) {
                   mapLayers.map(function(layer) {
@@ -283,6 +307,8 @@ THE SOFTWARE.
             case 37:
               if (Number(mapLayers[1].getTile([player.xPos - 1], [player.yPos])) === 0) {
                 player.xPos --;
+                socket.emit('position_update', JSON.stringify({x: player.xPos, y: player.yPos}));
+
                 mapLayers[1].applyFocus(player.xPos, player.yPos);
                 if (startY > 0 && player.xPos <= mapLayers[0].getLayout().length - 1 - rangeX / 2) {
                   mapLayers.map(function(layer) {
