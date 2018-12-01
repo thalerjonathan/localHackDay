@@ -180,7 +180,7 @@ THE SOFTWARE.
         players[player.pid] = player;
 
         var socket = io.connect('http://' + document.domain + ':' + location.port);
-        socket.heartbeatTimeout = 2000; // disconnection event happening much earlier
+
         socket.on('connect', function() {
           socket.emit('gamestate_request');
         });

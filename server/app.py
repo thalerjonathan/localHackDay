@@ -28,7 +28,7 @@ def home():
         return redirect('/login')
     else:
         return redirect('/hub')
- 
+
 @app.route('/login', methods=['GET', 'POST'])
 def do_login():
     global nextPlayerId
@@ -45,8 +45,9 @@ def do_login():
                 pid = nextPlayerId
                 x = 8 
                 y = 8
-    
-                p = Player(pid, user, x, y)
+                seeker = len(players) == 0
+
+                p = Player(pid, user, x, y, seeker)
                 players[pid] = p
 
                 msg = json.dumps(p.__dict__)
@@ -78,7 +79,9 @@ def hub():
 @socketio.on('disconnect')
 def handle_disconnect():
     pid = session.get('mypid')
-    del players[pid]
+    if pid in players.keys()
+      del players[pid]
+      
     socketio.emit('player_disc', json.dumps(pid), broadcast = True)
 
 @socketio.on('position_update')
