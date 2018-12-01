@@ -76,6 +76,19 @@ def handle_disconnect():
     pid = session.get('mypid')
     socketio.emit('player_disc', json.dumps(pid), broadcast = True)
 
+@socketio.on('position_update')
+def handle_position_update(data):
+    posInfo = json.loads(data)
+    pid = session.get('mypid')
+    
+    players[pid].x = posInfo['x']
+    players[pid].y = posInfo['y']
+
+    print("player " + str(pid) + " changed position to " + str(posInfo))
+
+    msg = json.dumps({'pid': pid, 'x': posInfo['x'], 'y': posInfo['y'] })
+    socketio.emit('position_player_changed', msg, broadcast = True)
+
 @socketio.on('gamestate_request')
 def handle_gamestate():
     global players
