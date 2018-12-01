@@ -39,8 +39,9 @@ def do_login():
             pw = request.form['password']
             user = request.form['username']
 
-            if pw == 'password' and user == 'admin':
+            if db_validate_user(user,pw):
                 session['logged_in'] = True
+<<<<<<< HEAD
               
                 pid = nextPlayerId
                 x = 8
@@ -57,8 +58,11 @@ def do_login():
                 session['mypid'] = pid
                 return redirect('/hub')
 
+=======
+                return redirect('/hub')
+>>>>>>> 1172ab235c30e91539a1e8263612b4bbc60d2dc9
             else:
-                print ("wrong password!")
+                return "wrong password!"
         else:
             return render_template('auth/login.html')
     else:
@@ -98,17 +102,15 @@ def do_register():
     elif request.method == 'POST':
         name = request.form['display_name']
         email = request.form['email']
-        pwd = request.form['psw'].encode('utf-8')
-        if pwd != request.form['psw-repeat'].encode('utf-8'):
+        pwd = request.form['psw']
+        if pwd != request.form['psw-repeat']:
             return 'Passwords do not equal'
-        
         if db_user_exists(email):
             return 'Username already exists'
         
-        db_add_user(email,pwd,name)
+        db_add_user(email, pwd, name)
         session['logged_in'] = True
-        return session['logged_in']
-        return redirect('/')    
-        
-        return render_template('auth/register.html')
+        session['name'] = name
+        return redirect('/')
+
     
