@@ -80,7 +80,6 @@ THE SOFTWARE.
           socket.emit('my event', {data: 'I\'m connected!'});
       });
     
-
       // -- FPS --------------------------------
       window.requestAnimFrame = (function() {
         return window.requestAnimationFrame || 
@@ -166,7 +165,6 @@ THE SOFTWARE.
         });
       }
 
-
       function main(x, y, xrange, yrange, playerImages) {
         self = this;
 
@@ -202,7 +200,6 @@ THE SOFTWARE.
           }
         ];
 
-
         var mapLayers = [];
         var tile_coordinates = {};
         var mouse_coordinates = {};
@@ -213,8 +210,6 @@ THE SOFTWARE.
         var calculatePaths = 0;
 
         var rain = null;
-
-
 
         var context = CanvasControl.create("canavas", 920, 600, {
           background: "#000022",
@@ -291,6 +286,8 @@ THE SOFTWARE.
         });
         
         function draw() {
+          
+
           context.clearRect(0, 0, CanvasControl().width, CanvasControl().height);
           calculatePaths ++;
            if(calculatePaths === 100) {
