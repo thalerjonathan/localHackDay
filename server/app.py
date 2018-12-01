@@ -38,3 +38,14 @@ def hub():
         return render_template('auth/login.html')
     else:
         return render_template('hub/hub.html')
+    
+
+@app.route('/register', methods=['GET','POST'])
+def do_register():
+    if request.method == 'GET':
+        return render_template('auth/register.html')
+    
+    elif request.method == 'POST':
+        return 'Hello World'
+    
+    
