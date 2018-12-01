@@ -8,7 +8,7 @@ class Player:
         self.seeker = seeker
     
     def check_collision(self,player):
-        if self.x == player.x :
-            if self.y == player.y:
-                return True
-        return False
+        return self.calculate_man_distance(player)==0
+
+    def calculate_man_distance(self, player):
+        return abs(self.x-player.x) + abs(self.y-player.y)
