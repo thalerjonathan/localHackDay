@@ -126,12 +126,14 @@ def handle_position_update(data):
         p.seeker = True
         if not pid == randomSeekerPid:
           p.seeker = False
+          p.x = 8
+          p.y = 8
+        else:
+          p.x = 22
+          p.y = 6
 
-        msg.append(json.dumps({'pid': pid, 'seeker': p.seeker}))
+        msg.append(json.dumps({'pid': pid, 'seeker': p.seeker, 'x': p.x, 'y': p.y}))
         
-    if seekerCount == 0: 
-        
-
       # notify all clients about reset seekers
       socketio.emit('reset_seekers', json.dumps(msg), broadcast = True)
 

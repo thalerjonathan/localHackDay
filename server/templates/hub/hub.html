@@ -257,6 +257,8 @@ THE SOFTWARE.
             data.map(function(p) {
               if (p.pid in players) {
                 players[p.pid].seeker = p.seeker;
+                players[p.pid].xPos = p.x;
+                players[p.pid].yPos = p.y;
               }
             });
         });
