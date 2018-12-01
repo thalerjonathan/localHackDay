@@ -226,8 +226,8 @@ THE SOFTWARE.
             data = JSON.parse(dataStr);
             if (data.pid != myPid) {
               console.log('player ' + data.pid + ' changed position');
-              players[pid].xPos = data.x;
-              players[pid].yPos = data.y;
+              players[data.pid].xPos = data.x;
+              players[data.pid].yPos = data.y;
             }
         });
 
