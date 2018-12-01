@@ -52,17 +52,3 @@ def db_user_exists(email):
 def db_hash_password(pass_plain):
     return hashlib.sha512(pass_plain).hexdigest()
 
-
-def main():
-    email = "james@hey.com"
-    password = "password"
-    display_name = "JJ"
-
-    print("User = {0} Exists? {1}".format(email, db_user_exists(email)))
-    print("Adding User {0}".format(email))
-    db_add_user(email, password, display_name)
-    print("User = {0} Exists? {1}".format(email, db_user_exists(email)))
-
-    wrong_password = "thispasswordiswrong"
-    print("User = {0}, Password = {1} Validates? ".format(email, db_validate_user(email, wrong_password), wrong_password))
-    print("User = {0}, Password = {1} Validates? ".format(email, db_validate_user(email, wrong_password), password))
