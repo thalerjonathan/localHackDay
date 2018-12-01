@@ -41,7 +41,6 @@ def do_login():
 
             if db_validate_user(user,pw):
                 session['logged_in'] = True
-<<<<<<< HEAD
               
                 pid = nextPlayerId
                 x = 8
@@ -53,14 +52,10 @@ def do_login():
 
                 msg = json.dumps(p.__dict__)
 
-                socketio.emit('player_conn', msg, broadcast = True)
-
                 session['mypid'] = pid
+                socketio.emit('player_conn', msg, broadcast = True)
                 return redirect('/hub')
 
-=======
-                return redirect('/hub')
->>>>>>> 1172ab235c30e91539a1e8263612b4bbc60d2dc9
             else:
                 return "wrong password!"
         else:
@@ -78,14 +73,13 @@ def hub():
 
 @socketio.on('disconnect')
 def handle_disconnect():
-    # TODO: get correct playerId from session and send in broadcast
-    socketio.emit('player_disc', '{ playerId: '', playerData = '' }', broadcast = True)
+    pid = session.get('mypid')
+    socketio.emit('player_disc', json.dumps(pid), broadcast = True)
 
 @socketio.on('gamestate_request')
 def handle_gamestate():
     global players
 
-    print ("gamestate_request")
     print (players)
 
     msg = []

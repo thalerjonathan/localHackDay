@@ -170,11 +170,12 @@ THE SOFTWARE.
 
         // player on this machine
         var player = {
-          id: 0,
+          id: myPid,
           image: playerImages.files["main.png"],
           xPos: 8,
           yPos: 8
         };
+        players[player.pid] = player;
 
         var socket = io.connect('http://' + document.domain + ':' + location.port);
         socket.on('connect', function() {
@@ -185,14 +186,21 @@ THE SOFTWARE.
           var gs = JSON.parse(gsStr)
           console.log('Received gamestate: ' + gs)
           
-          gs.map(function(p) {
+          gs.map(function(pStr) {
+            var p = JSON.parse(pStr);
             console.log(' player: ' + p)
 
-            var pdef = { 
-              id: p.pid,
-              image: playerImages.files["enemy1.png"],
-              xPos: p.x,
-              yPos: p.y
+            var pdef = null;
+            
+            if (p.pid == myPid) {
+              pdef = player;
+            } else {
+              pdef = { 
+                id: p.pid,
+                image: playerImages.files["enemy1.png"],
+                xPos: p.x,
+                yPos: p.y
+              }
             }
 
             players[p.pid] = pdef;
