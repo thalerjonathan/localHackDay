@@ -1,0 +1,3 @@
+1. set up VM on azure
+2. install server software (python,...)
+3. build login server side
