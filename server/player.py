@@ -12,3 +12,4 @@ class Player:
 
     def calculate_man_distance(self, player):
         return abs(self.x-player.x) + abs(self.y-player.y)
+    
