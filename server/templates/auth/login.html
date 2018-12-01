@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="static/css/login/style.css" type="text/css">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/login/style.css') }}" type="text/css">
 {% block body %}
 {% if session['logged_in'] %}
 <p>You're logged in already!</p>
