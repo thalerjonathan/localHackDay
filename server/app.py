@@ -91,40 +91,46 @@ def handle_position_update(data):
     posInfo = json.loads(data)
     pid = session.get('mypid')
     
-    p0 = players[pid]
-    p0.x = posInfo['x']
-    p0.y = posInfo['y']
-
-    msg = json.dumps({'pid': pid, 'x': posInfo['x'], 'y': posInfo['y'] })
-    socketio.emit('position_player_changed', msg, broadcast = True)
-
-    # check if this seeker has catched another hider
-    for pid, p in players.items():
-      # only check if either one is a seeker 
-      if (p0.seeker and not p.seeker) or (not p0.seeker and p.seeker):
-        # distance (manhattan) maximum 1 square
-        if p0.calculate_man_distance(p) <= 1:
-          # update to seeker
-          p.seeker = True
-          # notify all clients
-          socketio.emit('new_seeker', json.dumps(pid), broadcast = True)
+    if pid in players.keys():
+        p0 = players[pid]
+        
+        p0.x = posInfo['x']
+        p0.y = posInfo['y']
+    
+        msg = json.dumps({'pid': pid, 'x': posInfo['x'], 'y': posInfo['y'] })
+        socketio.emit('position_player_changed', msg, broadcast = True)
+    
+        # check if this seeker has catched another hider
+        for pid, p in players.items():
+          # only check if either one is a seeker 
+          if (p0.seeker and not p.seeker) or (not p0.seeker and p.seeker):
+            # distance (manhattan) maximum 1 square
+            if p0.calculate_man_distance(p) <= 1:
+              # update to seeker
+              p.seeker = True
+              # notify all clients
+              socketio.emit('new_seeker', json.dumps(pid), broadcast = True)
 
     seekerCount = len([p for p in players.values() if p.seeker])
     playerCount = len(players)
 
     # check if all players are seekers now, if yes, revert back to 1 seeker
     # only check this if there are more than 1 players!
-    if seekerCount == playerCount and playerCount > 1:
+    if (seekerCount == playerCount and playerCount > 1) or (seekerCount == 0):
       randomSeekerIdx = randint(0, playerCount)
       pks = list(players.keys())
       randomSeekerPid = pks[randomSeekerIdx]
       msg = []
-
+      
       for pid, p in players.items():
+        p.seeker = True
         if not pid == randomSeekerPid:
           p.seeker = False
 
         msg.append(json.dumps({'pid': pid, 'seeker': p.seeker}))
+        
+    if seekerCount == 0: 
+        
 
       # notify all clients about reset seekers
       socketio.emit('reset_seekers', json.dumps(msg), broadcast = True)
