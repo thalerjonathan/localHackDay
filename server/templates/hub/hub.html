@@ -164,13 +164,15 @@ THE SOFTWARE.
         self = this;
 
         var myPid = '{{ myPidArg }}';
+        var myName = '{{ myNameArg }}';
         var players = [];
         
-        console.log("I am " + myPid);
+        console.log("I am " + myName + " with id " + myPid);
 
         // player on this machine
         var player = {
           id: myPid,
+          name: myName,
           image: playerImages.files["main.png"],
           xPos: 8,
           yPos: 8
@@ -178,6 +180,7 @@ THE SOFTWARE.
         players[player.pid] = player;
 
         var socket = io.connect('http://' + document.domain + ':' + location.port);
+        socket.heartbeatTimeout = 2000; // disconnection event happening much earlier
         socket.on('connect', function() {
           socket.emit('gamestate_request');
         });
@@ -188,7 +191,7 @@ THE SOFTWARE.
           
           gs.map(function(pStr) {
             var p = JSON.parse(pStr);
-            console.log(' player: ' + p)
+            //console.log(' player: ' + p)
 
             var pdef = null;
             
@@ -225,7 +228,7 @@ THE SOFTWARE.
         socket.on('position_player_changed', function(dataStr) {
             data = JSON.parse(dataStr);
             if (data.pid != myPid) {
-              console.log('player ' + data.pid + ' changed position');
+              //console.log('player ' + data.pid + ' changed position');
               players[data.pid].xPos = data.x;
               players[data.pid].yPos = data.y;
             }

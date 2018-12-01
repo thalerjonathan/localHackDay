@@ -43,17 +43,20 @@ def do_login():
                 session['logged_in'] = True
               
                 pid = nextPlayerId
-                x = 8
+                x = 8 
                 y = 8
-                nextPlayerId = nextPlayerId + 1
-
+    
                 p = Player(pid, user, x, y)
                 players[pid] = p
 
                 msg = json.dumps(p.__dict__)
 
                 session['mypid'] = pid
+                session['myname'] = user
+                nextPlayerId = nextPlayerId + 1
+
                 socketio.emit('player_conn', msg, broadcast = True)
+
                 return redirect('/hub')
 
             else:
@@ -69,11 +72,13 @@ def hub():
         return redirect('/login')
     else:
         pid = session.get('mypid')
-        return render_template('hub/hub.html', myPidArg = str(pid))
+        name = session.get('myname')
+        return render_template('hub/hub.html', myPidArg = str(pid), myNameArg = name)
 
 @socketio.on('disconnect')
 def handle_disconnect():
     pid = session.get('mypid')
+    del players[pid]
     socketio.emit('player_disc', json.dumps(pid), broadcast = True)
 
 @socketio.on('position_update')
@@ -84,7 +89,7 @@ def handle_position_update(data):
     players[pid].x = posInfo['x']
     players[pid].y = posInfo['y']
 
-    print("player " + str(pid) + " changed position to " + str(posInfo))
+    #print("player " + str(pid) + " changed position to " + str(posInfo))
 
     msg = json.dumps({'pid': pid, 'x': posInfo['x'], 'y': posInfo['y'] })
     socketio.emit('position_player_changed', msg, broadcast = True)
@@ -93,7 +98,7 @@ def handle_position_update(data):
 def handle_gamestate():
     global players
 
-    print (players)
+    #print (players)
 
     msg = []
     for pid, p in players.items():
@@ -119,5 +124,3 @@ def do_register():
         session['logged_in'] = True
         session['name'] = name
         return redirect('/')
-
-    
