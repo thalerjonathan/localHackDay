@@ -33,7 +33,7 @@ def run_db_tests():
 
     with conn:
         cur = conn.cursor()
-        cur.execute('DELETE FROM users WHERE email = ?)', email)
+        cur.execute('DELETE FROM users WHERE email = ?', (email,))
 
 
 if __name__ == "__main__":
