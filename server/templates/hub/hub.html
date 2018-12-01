@@ -75,11 +75,6 @@ THE SOFTWARE.
       'jsiso/utils'
     ],
     function(CanvasControl, CanvasInput, imgLoader, jsonLoader, TileField, pathfind, EffectLoader, utils) {
-      var socket = io.connect('http://' + document.domain + ':' + location.port);
-      socket.on('connect', function() {
-          socket.emit('my event', {data: 'I\'m connected!'});
-      });
-    
       // -- FPS --------------------------------
       window.requestAnimFrame = (function() {
         return window.requestAnimationFrame || 
@@ -168,37 +163,64 @@ THE SOFTWARE.
       function main(x, y, xrange, yrange, playerImages) {
         self = this;
 
+        var myPid = '{{ myPidArg }}';
+        var players = [];
+        
+        console.log("I am " + myPid);
+
+        // player on this machine
         var player = {
+          id: 0,
           image: playerImages.files["main.png"],
           xPos: 8,
           yPos: 8
         };
-        var enemy = [
-          {
-            id: 0,
-            image: playerImages.files["enemy1.png"],
-            xPos: 10,
-            yPos: 8
-          },
-          {
-            id: 1,
-            image: playerImages.files["enemy1.png"],
-            xPos: 20,
-            yPos: 30
-          },
-          {
-            id: 2,
-            image: playerImages.files["enemy1.png"],
-            xPos: 30,
-            yPos: 8
-          },
-          {
-            id: 3,
-            image: playerImages.files["enemy1.png"],
-            xPos: 2,
-            yPos: 30
-          }
-        ];
+
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+        socket.on('connect', function() {
+          socket.emit('gamestate_request');
+        });
+
+        socket.on('gamestate_reply', function (gsStr) {
+          var gs = JSON.parse(gsStr)
+          console.log('Received gamestate: ' + gs)
+          
+          gs.map(function(p) {
+            console.log(' player: ' + p)
+
+            var pdef = { 
+              id: p.pid,
+              image: playerImages.files["enemy1.png"],
+              xPos: p.x,
+              yPos: p.y
+            }
+
+            players[p.pid] = pdef;
+          });
+        });
+
+        socket.on('disconnect', function () {
+          // TODO: remove player by pid
+          socket.emit('user disconnected');
+        });
+
+        socket.on('player_conn', function(p) {
+            console.log('player connected: ' + p);
+            var pdef = { 
+              id: p.id,
+              image: playerImages.files["enemy1.png"],
+              xPos: p.x,
+              yPos: p.y
+            }
+
+            players[p.id] = pdef;
+        });
+
+        socket.on('player_disc', function(data) {
+            console.log('player disconnected: ' + data);
+            var pid = data.playerId;
+            delete players[pid];
+        });
 
         var mapLayers = [];
         var tile_coordinates = {};
@@ -286,39 +308,22 @@ THE SOFTWARE.
         });
         
         function draw() {
-          
-
           context.clearRect(0, 0, CanvasControl().width, CanvasControl().height);
-          calculatePaths ++;
-           if(calculatePaths === 100) {
-              enemy.map(function(e) {
-                pathfind(e.id, [e.xPos, e.yPos], [player.xPos, player.yPos], mapLayers[1].getLayout(), false).then(function (data) { 
-                  if (data.length > 0 && data[1] !== undefined) {
-                    e.xPos = data[1].x;
-                    e.yPos = data[1].y;
+          for (var i = startY, n = startY + rangeY; i < n; i++) {
+            for (var j = startX, h = startX + rangeX; j < h; j++) {
+              mapLayers.map(function(layer) {
+                players.map(function(p) {
+                  layer.setLight(p.xPos, p.yPos);
+
+                  if (i === p.xPos  && j === p.yPos && layer.getTitle() === "Object Layer") {
+                    layer.draw(i, j, p.image);
+                  } else {
+                    layer.draw(i, j);
                   }
                 });
               });
-              calculatePaths = 0;
             }
-            for (var i = startY, n = startY + rangeY; i < n; i++) {
-              for (var j = startX, h = startX + rangeX; j < h; j++) {
-                mapLayers.map(function(layer) {
-                  layer.setLight(player.xPos, player.yPos);
-                  if (i === player.xPos  && j === player.yPos && layer.getTitle() === "Object Layer") {
-                    layer.draw(i, j, player.image);
-                  }
-                  else {
-                    layer.draw(i,j);
-                  }
-                  enemy.map(function(e) {
-                    if (i === e.xPos  && j === e.yPos  && layer.getTitle() === "Object Layer") {
-                      layer.draw(i, j, e.image);
-                    }
-                  });          
-                });
-             }
-           }
+          }
           rain.Draw(CanvasControl().width / 4, 0);
           requestAnimFrame(draw);
         }
