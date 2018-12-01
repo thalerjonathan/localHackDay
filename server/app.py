@@ -1,6 +1,6 @@
 from flask import Flask
 from flask import Flask, flash, redirect, render_template, request, session, abort
-import os
+from database import db_get_user, db_add_user, db_validate_user, db_user_exists
  
 app = Flask(__name__)
 app.secret_key = "super secret key" #necessary to prevent runtime error when handling sessions
@@ -46,6 +46,22 @@ def do_register():
         return render_template('auth/register.html')
     
     elif request.method == 'POST':
-        return 'Hello World'
+        name = request.form['display_name']
+        email = request.form['email']
+        pwd = request.form['psw'].encode('utf-8')
+        if pwd != request.form['psw-repeat'].encode('utf-8'):
+            return 'Passwords do not equal'
+        
+        if db_user_exists(email):
+            return 'Username already exists'
+        
+        db_add_user(email,pwd,name)
+        session['logged_in'] = True
+        return session['logged_in']
+        return redirect('/')    
+        
+        return render_template('auth/register.html')
+    
+        
     
     
