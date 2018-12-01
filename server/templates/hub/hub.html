@@ -165,17 +165,22 @@ THE SOFTWARE.
 
         var myPid = '{{ myPidArg }}';
         var myName = '{{ myNameArg }}';
+        var mySeeker = '{{ mySeeker }}';
+
         var players = [];
         
         console.log("I am " + myName + " with id " + myPid);
+
+        var seekerImage = playerImages.files["enemy3.png"];
+        var hiderImage = playerImages.files["enemy2.png"];
 
         // player on this machine
         var player = {
           id: myPid,
           name: myName,
-          image: playerImages.files["main.png"],
           xPos: 8,
-          yPos: 8
+          yPos: 8,
+          seeker: mySeeker
         };
         players[player.pid] = player;
 
@@ -198,13 +203,15 @@ THE SOFTWARE.
             if (p.pid == myPid) {
               player.xPos = p.x;
               player.yPos = p.y;
+              player.seeker = p.seeker;
               pdef = player;
             } else {
               pdef = { 
                 id: p.pid,
-                image: playerImages.files["enemy1.png"],
+                name: p.name,
                 xPos: p.x,
-                yPos: p.y
+                yPos: p.y,
+                seeker: p.seeker
               }
             }
 
@@ -217,9 +224,10 @@ THE SOFTWARE.
             console.log('player connected: ' + p);
             var pdef = { 
               id: p.pid,
-              image: playerImages.files["enemy1.png"],
               xPos: p.x,
-              yPos: p.y
+              yPos: p.y,
+              seeker: p.seeker,
+              name: p.name
             }
 
             players[p.id] = pdef;
@@ -233,6 +241,24 @@ THE SOFTWARE.
               players[data.pid].xPos = data.x;
               players[data.pid].yPos = data.y;
             }
+        });
+
+        socket.on('new_seeker', function(dataStr) {
+            data = JSON.parse(dataStr);
+            console.log('New seeker: ' + data);
+            if (data.pid in players) {
+              players[data.pid].seeker = true;
+            }
+        });
+
+        socket.on('reset_seekers', function(dataStr) {
+            data = JSON.parse(dataStr);
+            console.log('Resetting seekers: ' + data);
+            data.map(function(p) {
+              if (p.pid in players) {
+                players[p.pid].seeker = p.seeker;
+              }
+            });
         });
 
         socket.on('player_disc', function(pid) {
@@ -339,10 +365,15 @@ THE SOFTWARE.
             for (var j = startX, h = startX + rangeX; j < h; j++) {
               mapLayers.map(function(layer) {
                 players.map(function(p) {
+                  var im = hiderImage;
+                  if (p.seeker == true) {
+                    im = seekerImage;
+                  }
+
                   layer.setLight(p.xPos, p.yPos);
 
                   if (i === p.xPos  && j === p.yPos && layer.getTitle() === "Object Layer") {
-                    layer.draw(i, j, p.image);
+                    layer.draw(i, j, im);
                   } else {
                     layer.draw(i, j);
                   }

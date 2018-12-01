@@ -2,6 +2,7 @@ from flask import Flask
 from flask import Flask, flash, redirect, render_template, request, session, abort
 from flask_socketio import SocketIO
 from database import db_get_user, db_add_user, db_validate_user, db_user_exists
+from random import randint
 import os
 import json
 
@@ -79,9 +80,10 @@ def hub():
 @socketio.on('disconnect')
 def handle_disconnect():
     pid = session.get('mypid')
-    if pid in players.keys()
+    if pid in players.keys():
       del players[pid]
       
+    # TODO: what if the player is the only seeker? pick one at random and promote to seeker
     socketio.emit('player_disc', json.dumps(pid), broadcast = True)
 
 @socketio.on('position_update')
@@ -89,19 +91,47 @@ def handle_position_update(data):
     posInfo = json.loads(data)
     pid = session.get('mypid')
     
-    players[pid].x = posInfo['x']
-    players[pid].y = posInfo['y']
-
-    #print("player " + str(pid) + " changed position to " + str(posInfo))
+    p0 = players[pid]
+    p0.x = posInfo['x']
+    p0.y = posInfo['y']
 
     msg = json.dumps({'pid': pid, 'x': posInfo['x'], 'y': posInfo['y'] })
     socketio.emit('position_player_changed', msg, broadcast = True)
 
+    # check if this seeker has catched another hider
+    for pid, p in players.items():
+      # only check if either one is a seeker 
+      if (p0.seeker and not p.seeker) or (not p0.seeker and p.seeker):
+        # distance (manhattan) maximum 1 square
+        if p0.calculate_man_distance(p) <= 1:
+          # update to seeker
+          p.seeker = True
+          # notify all clients
+          socketio.emit('new_seeker', json.dumps(pid), broadcast = True)
+
+    seekerCount = len([p for p in players.values() if p.seeker])
+    playerCount = len(players)
+
+    # check if all players are seekers now, if yes, revert back to 1 seeker
+    # only check this if there are more than 1 players!
+    if seekerCount == playerCount and playerCount > 1:
+      randomSeekerIdx = randint(0, playerCount)
+      pks = players.keys()
+      randomSeekerPid = pks[randomSeekerIdx]
+      msg = []
+
+      for pid, p in players.items():
+        if not pid == randomSeekerPid:
+          p.seeker = False
+
+        msg.append(json.dumps({'pid': pid, 'seeker': p.seeker}))
+
+      # notify all clients about reset seekers
+      socketio.emit('reset_seekers', json.dumps(msg), broadcast = True)
+
 @socketio.on('gamestate_request')
 def handle_gamestate():
     global players
-
-    #print (players)
 
     msg = []
     for pid, p in players.items():
