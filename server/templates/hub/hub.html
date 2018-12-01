@@ -58,10 +58,12 @@ THE SOFTWARE.
     </style>
     <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
 
-    <script data-main="{{ url_for('static', filename='js/config.js') }}" src="{{ url_for('static', filename='js/lib/require.js') }}"></script> -->
+    <!-- include websocket before RequireJS -->
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
+    
+    <script data-main="{{ url_for('static', filename='js/config.js') }}" src="{{ url_for('static', filename='js/lib/require.js') }}"></script>
 
     <script type="text/javascript">
-
     require([
       'jsiso/canvas/Control',
       'jsiso/canvas/Input',
@@ -73,6 +75,11 @@ THE SOFTWARE.
       'jsiso/utils'
     ],
     function(CanvasControl, CanvasInput, imgLoader, jsonLoader, TileField, pathfind, EffectLoader, utils) {
+      var socket = io.connect('http://' + document.domain + ':' + location.port);
+      socket.on('connect', function() {
+          socket.emit('my event', {data: 'I\'m connected!'});
+      });
+    
 
       // -- FPS --------------------------------
       window.requestAnimFrame = (function() {
