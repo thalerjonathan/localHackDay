@@ -59,7 +59,7 @@ THE SOFTWARE.
     <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
 
 
-    <script data-main="scripts/config.js" src="scripts/lib/require.js"></script>
+    <script data-main="../../config.js" src="../../requirejs/require.js"></script>
 
     <script type="text/javascript">
 
@@ -90,6 +90,7 @@ THE SOFTWARE.
 
 
       function launch() {
+
         jsonLoader(['map.json', 'imageFiles.json']).then(function(jsonResponse) {
 
           var images = [
