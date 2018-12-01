@@ -21,7 +21,7 @@ def home():
     if not session.get('logged_in'):
         return render_template('auth/login.html')
     else:
-        return render_template('auth/socket.html')
+        return render_template('hub/hub.html')
  
 @app.route('/login', methods=['POST'])
 def do_login():
