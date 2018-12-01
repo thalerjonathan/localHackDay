@@ -227,7 +227,8 @@ THE SOFTWARE.
 
         socket.on('position_player_changed', function(dataStr) {
             data = JSON.parse(dataStr);
-            if (data.pid != myPid) {
+            if (data.pid != myPid && 
+                data.pid in players) {
               //console.log('player ' + data.pid + ' changed position');
               players[data.pid].xPos = data.x;
               players[data.pid].yPos = data.y;
