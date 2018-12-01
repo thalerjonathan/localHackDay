@@ -1,8 +1,9 @@
 from flask import Flask
 from flask import Flask, flash, redirect, render_template, request, session, abort
 from flask_socketio import SocketIO
+from database import db_get_user, db_add_user, db_validate_user, db_user_exists
 import os
- 
+
 app = Flask(__name__)
 
 # disable caching while in development mode
@@ -57,3 +58,26 @@ def handle_message(message):
 @socketio.on('my event')
 def handle_my_custom_event(json):
     print('received json: ' + str(json))
+
+@app.route('/register', methods=['GET','POST'])
+def do_register():
+    if request.method == 'GET':
+        return render_template('auth/register.html')
+    
+    elif request.method == 'POST':
+        name = request.form['display_name']
+        email = request.form['email']
+        pwd = request.form['psw'].encode('utf-8')
+        if pwd != request.form['psw-repeat'].encode('utf-8'):
+            return 'Passwords do not equal'
+        
+        if db_user_exists(email):
+            return 'Username already exists'
+        
+        db_add_user(email,pwd,name)
+        session['logged_in'] = True
+        return session['logged_in']
+        return redirect('/')    
+        
+        return render_template('auth/register.html')
+    
