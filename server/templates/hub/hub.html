@@ -367,10 +367,11 @@ THE SOFTWARE.
                 players.map(function(p) {
                   var im = hiderImage;
                   if (p.seeker == true) {
-                    layer.setLight(p.xPos, p.yPos);
                     im = seekerImage;
                   }
-                  
+
+                  layer.setLight(p.xPos, p.yPos);
+
                   if (i === p.xPos  && j === p.yPos && layer.getTitle() === "Object Layer") {
                     layer.draw(i, j, im);
                   } else {
