@@ -144,7 +144,7 @@ def handle_gamestate():
     msg = []
     for pid, p in players.items():
       msg.append(json.dumps(p.__dict__))
-      
+
     socketio.emit('gamestate_reply', json.dumps(msg))
 
 @app.route('/register', methods=['GET','POST'])
