@@ -116,7 +116,7 @@ def handle_position_update(data):
     # only check this if there are more than 1 players!
     if seekerCount == playerCount and playerCount > 1:
       randomSeekerIdx = randint(0, playerCount)
-      pks = players.keys()
+      pks = list(players.keys())
       randomSeekerPid = pks[randomSeekerIdx]
       msg = []
 
