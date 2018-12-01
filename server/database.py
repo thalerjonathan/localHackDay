@@ -13,7 +13,7 @@ def db_add_user(email, pass_plain, display_name):
 
     with conn:
         cur = conn.cursor()
-        cur.execute('INSERT INTO users(email, password_hash, display_name) VALUES(?)',
+        cur.execute('INSERT INTO users(email, password_hash, display_name) VALUES(?, ?, ?)',
                     (email, pass_hash, display_name))
 
 
@@ -23,7 +23,7 @@ def db_get_user(email):
     with conn:
         cur = conn.cursor()
         cur.execute('SELECT email, password_hash, display_name '
-                    'FROM users WHERE email = ?', email)
+                    'FROM users WHERE email = (?)', (email,))
         return cur.fetchone()
 
 

@@ -1,3 +1,3 @@
-1. set up VM on azure
-2. install server software (python,...)
+1. set up VM on azure DONE
+2. install server software (python,...) DONE
 3. build login server side
