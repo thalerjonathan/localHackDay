@@ -1,59 +1,78 @@
-/* Below line is used for online Google font */
-@import url(http://fonts.googleapis.com/css?family=Droid+Serif);
-h2{
+* {
+box-sizing: border-box;
+}
+ 
+*:focus {
+	outline: none;
+}
+body {
+font-family: Arial;
+background-color: #3498DB;
+padding: 50px;
+}
+.login {
+margin: 20px auto;
+width: 300px;
+}
+.login-screen {
+background-color: #FFF;
+padding: 20px;
+border-radius: 5px
+}
+ 
+.app-title {
 text-align: center;
-font-size: 24px;
+color: #777;
 }
-hr{
-margin-bottom: 30px;
+ 
+.login-form {
+text-align: center;
 }
-div.container{
-width: 960px;
-height: 610px;
-margin:50px auto;
-font-family: 'Droid Serif', serif;
-position:relative;
+.control-group {
+margin-bottom: 10px;
 }
-div.main{
-width: 320px;
-margin-top: 80px;
-float:left;
-padding: 10px 55px 40px;
-background-color: rgba(187, 255, 184, 0.65);
-border: 15px solid white;
-box-shadow: 0 0 10px;
-border-radius: 2px;
-font-size: 13px;
-}
-input[type=text],[type=password] {
-width: 97.7%;
-height: 34px;
-padding-left: 5px;
-margin-bottom: 20px;
-margin-top: 8px;
-box-shadow: 0 0 5px #00F5FF;
-border: 2px solid #00F5FF;
-color: #4f4f4f;
+ 
+input {
+text-align: center;
+background-color: #ECF0F1;
+border: 2px solid transparent;
+border-radius: 3px;
 font-size: 16px;
+font-weight: 200;
+padding: 10px 0;
+width: 250px;
+transition: border .5s;
 }
-label{
-color: #464646;
-text-shadow: 0 1px 0 #fff;
-font-size: 14px;
-font-weight: bold;
+ 
+input:focus {
+border: 2px solid #3498DB;
+box-shadow: none;
 }
-#login {
-width: 100%;
-background: linear-gradient(#22abe9 5%, #36caf0 100%);
-border: 1px solid #0F799E;
-font-size: 20px;
-margin-top: 15px;
-padding: 8px;
-font-weight: bold;
-cursor: pointer;
-color: white;
-text-shadow: 0px 1px 0px #13506D;
+ 
+.btn {
+  border: 2px solid transparent;
+  background: #3498DB;
+  color: #ffffff;
+  font-size: 16px;
+  line-height: 25px;
+  padding: 10px 0;
+  text-decoration: none;
+  text-shadow: none;
+  border-radius: 3px;
+  box-shadow: none;
+  transition: 0.25s;
+  display: block;
+  width: 250px;
+  margin: 0 auto;
 }
-#login:hover{
-background: linear-gradient(#36caf0 5%, #22abe9 100%);
+ 
+.btn:hover {
+  background-color: #2980B9;
+}
+ 
+.login-link {
+  font-size: 12px;
+  color: #444;
+  display: block;
+	margin-top: 12px;
 }

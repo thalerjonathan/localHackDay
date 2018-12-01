@@ -1,14 +1,14 @@
 $(document).ready(function () {
   $("#login").click(function () {
-    var email = $("#email").val();
-    var password = $("#password").val();
+    var us = $("#user").val();
+    var pw = $("#password").val();
     // Checking for blank fields.
-    if (email == '' || password == '') {
+    if (em == '' || pw == '') {
       $('input[type="text"],input[type="password"]').css("border", "2px solid red");
       $('input[type="text"],input[type="password"]').css("box-shadow", "0 0 3px red");
       alert("Please fill all fields...!!!!!!");
     } else {
-      $.post("login", { email1: email, password1: password },
+      $.post("login", { user: user, password: pw },
         function (data) {
           if (data == 'Invalid Email.......') {
             $('input[type="text"]').css({ "border": "2px solid red", "box-shadow": "0 0 3px red" });
