@@ -70,14 +70,12 @@ def do_register():
         pwd = request.form['psw'].encode('utf-8')
         if pwd != request.form['psw-repeat'].encode('utf-8'):
             return 'Passwords do not equal'
-        
         if db_user_exists(email):
             return 'Username already exists'
         
-        db_add_user(email,pwd,name)
+        db_add_user(email, pwd, name)
         session['logged_in'] = True
-        return session['logged_in']
-        return redirect('/')    
-        
-        return render_template('auth/register.html')
+        session['name'] = name
+        return redirect('/')
+
     
