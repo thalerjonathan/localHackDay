@@ -30,11 +30,11 @@ def do_login():
             pw = request.form['password']
             user = request.form['username']
 
-            if pw == 'password' and user == 'admin':
+            if db_validate_user(user,pw):
                 session['logged_in'] = True
-                return render_template('hub/hub.html')
+                return redirect('/hub')
             else:
-                print ("wrong password!")
+                return "wrong password!"
         else:
             return render_template('auth/login.html')
     else:
@@ -67,8 +67,8 @@ def do_register():
     elif request.method == 'POST':
         name = request.form['display_name']
         email = request.form['email']
-        pwd = request.form['psw'].encode('utf-8')
-        if pwd != request.form['psw-repeat'].encode('utf-8'):
+        pwd = request.form['psw']
+        if pwd != request.form['psw-repeat']:
             return 'Passwords do not equal'
         if db_user_exists(email):
             return 'Username already exists'
